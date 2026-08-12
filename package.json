@@ -1,0 +1,81 @@
+{
+  "name": "crosswalk-web-env",
+  "version": "0.0.1",
+  "description": "npm package for web version of CrosswalkEnv",
+  "homepage": "https://crosswalk-task.github.io",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "typecheck": "tsc --noEmit",
+    "build": "vite build",
+    "prepublishOnly": "npm run typecheck && npm run build"
+  },
+  "peerDependencies": {
+    "jszip": "^3.10.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^5.3.4",
+    "styled-components": "^6.4.4",
+    "web-vitals": "^1.1.2"
+  },
+  "resolutions": {
+    "postcss": "8.2.13",
+    "immer": "9.0.7",
+    "ansi-regex": "5.0.1",
+    "nth-check": "2.0.1",
+    "glob-parent": "6.0.1",
+    "browserslist": "4.18.1"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@types/react-router-dom": "^5.3.3",
+    "@vitejs/plugin-react": "^4.7.0",
+    "styled-components": "^6.4.4",
+    "typescript": "^5.9.3",
+    "unplugin-dts": "^1.0.3",
+    "vite": "^6.4.3",
+    "vite-plugin-dts": "^5.0.3"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crosswalk-task/CrosswalkWebEnv.git"
+  }
+}
