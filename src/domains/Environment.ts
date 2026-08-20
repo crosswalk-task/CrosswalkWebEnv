@@ -47,10 +47,10 @@ export class Environment {
   private episodeSeed: number = 42;
 
   private assetManager!: AssetManager;
-  private canvasRef: React.RefObject<HTMLCanvasElement>;
+  private canvasRef: React.RefObject<HTMLCanvasElement | null>;
   private episodeOver: boolean = false;
 
-  private constructor(canvasRef: React.RefObject<HTMLCanvasElement>, viewportWidth: number, viewportHeight: number) {
+  private constructor(canvasRef: React.RefObject<HTMLCanvasElement | null>, viewportWidth: number, viewportHeight: number) {
     const { pixSquareSize, cameraWidthPixel, cameraHeightPixel } = Environment.calculateSize(viewportWidth, viewportHeight);
     this.pixSquareSize = pixSquareSize;
 
@@ -68,7 +68,7 @@ export class Environment {
   }
 
   // NOTE: constructor can not be async
-  static async create(canvasRef: React.RefObject<HTMLCanvasElement>, viewportWidth: number, viewportHeight: number) {
+  static async create(canvasRef: React.RefObject<HTMLCanvasElement | null>, viewportWidth: number, viewportHeight: number) {
     const env = new Environment(canvasRef, viewportWidth, viewportHeight);
     env.assetManager = await AssetManager.create();
     return env;
@@ -139,7 +139,7 @@ export class Environment {
     }
   }
 
-  public getCanvasRef(): React.RefObject<HTMLCanvasElement> {
+  public getCanvasRef(): React.RefObject<HTMLCanvasElement | null> {
     return this.canvasRef;
   }
 
@@ -184,7 +184,7 @@ export class Environment {
   public render() {
     if (!this.canvasRef.current?.getContext("2d")) return;
     const canvas: HTMLCanvasElement = this.canvasRef.current!;
-    let ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+    const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     ctx.canvas.width = this.cameraWidthPixel;
     ctx.canvas.height = this.cameraHeightPixel;
 
@@ -221,7 +221,7 @@ export class Environment {
     }
   }
 
-  public updateAndGetState(): { obs: number[], playInfo: Object } {
+  public updateAndGetState(): { obs: number[], playInfo: object } {
     this.updateObs();
     this.updateInfo();
     return { obs: this.state.obs, playInfo: this.state.playInfo };
@@ -232,8 +232,8 @@ export class Environment {
     // - Observations have boolean(0/1) values at indices: 5, 6, 7, 8, 9, 10, 11, 12, 13, 33, 34, 35, 36, 37, 38, 39, 40.
     // - All the other observations are scaled within 0 ~ 1 range.
     const obs: number[] = [];
-    const [agent_x, agent_y] = this.world!!.agent.getCurLocationGrid();
-    const agentHitbox = this.world!!.agent.getHitbox();
+    const [agent_x, agent_y] = this.world!.agent.getCurLocationGrid();
+    const agentHitbox = this.world!.agent.getHitbox();
     const agent_left_x = agentHitbox[2];
     const agent_right_x = agentHitbox[3];
     const agent_width = agent_right_x - agent_left_x;
@@ -303,13 +303,13 @@ export class Environment {
         // Python: if action != RIGHT and action != LEFT:
         if (action !== Action.RIGHT && action !== Action.LEFT) {
           if (out_of_move_range) is_dangerous.push(0);
-          else is_dangerous.push(this.world!!.danger_row[grid_y] ? 1 : 0);
+          else is_dangerous.push(this.world!.danger_row[grid_y] ? 1 : 0);
         }
 
         if (out_of_move_range) {
           is_crosswalk.push(0);
         } else {
-          is_crosswalk.push(this.world!!.crosswalk_map[grid_y][grid_x] ? 1 : 0);
+          is_crosswalk.push(this.world!.crosswalk_map[grid_y][grid_x] ? 1 : 0);
         }
       }
 
@@ -321,7 +321,7 @@ export class Environment {
       this.prev_road = null;
       this.target_road = null;
       this.target_road_crosswalk_visible = false;
-      const roads = this.world!!.roads.elements;
+      const roads = this.world!.roads.elements;
       for (let i = roads.length; i > 0; i--) {
         const road = roads[i-1];
         if (road.topY > agent_y) {
@@ -352,7 +352,7 @@ export class Environment {
           dist_start_of_target_road = (road.bottomY - agent_y + 1) / 4;
         }
 
-        const cars = this.world!!.cars.roadUidToCarsDict[road.uid] || [];
+        const cars = this.world!.cars.roadUidToCarsDict[road.uid] || [];
         for (const car of cars) {
           const car_rect = car.getHitbox();
           if (!isOverlappingRectangles(car_rect, game_screen_rect)) continue;
@@ -401,10 +401,10 @@ export class Environment {
       this.assertListLength(obs, 24);
     }
     { // Distance from crosswalks [24 ~ 32]
-      let crosswalk_closeness_list = [];
+      const crosswalk_closeness_list = [];
 
-      for (let i = this.world!!.roads.elements.length - 1; i >= 0; i--) {
-        const road = this.world!!.roads.elements[i];
+      for (let i = this.world!.roads.elements.length - 1; i >= 0; i--) {
+        const road = this.world!.roads.elements[i];
         if (road.topY > agent_y) continue;         // already crossed
         if (road.bottomY < grid_top_y) break;      // out of sight
         if (road.crosswalk == null) continue;
@@ -460,8 +460,8 @@ export class Environment {
         const tile_rect: [number, number, number, number] = [grid_y - 0.5, grid_y + 0.5, grid_x - 0.5, grid_x + 0.5];
 
         let car_in_tile = false;
-        if (this.world!!.row_to_cars_dict[grid_y]) {
-          for (const car of this.world!!.row_to_cars_dict[grid_y]) {
+        if (this.world!.row_to_cars_dict[grid_y]) {
+          for (const car of this.world!.row_to_cars_dict[grid_y]) {
             if (isOverlappingRectangles(tile_rect, car.getHitbox())) {
               car_in_tile = true;
               break;
@@ -477,8 +477,8 @@ export class Environment {
       const visible_left_width = agent_left_x - visible_x_left_end;
       const visible_right_width = visible_x_right_end - agent_right_x;
       for (let gy = agent_y - 4; gy <= grid_bottomY; gy++) {
-        let left_cars = [];
-        let right_cars = [];
+        const left_cars = [];
+        const right_cars = [];
 
         const is_prev_road =
           this.prev_road != null && this.prev_road.topY <= gy && gy <= this.prev_road.bottomY;
@@ -486,7 +486,7 @@ export class Environment {
           this.target_road != null && this.target_road.topY <= gy && gy <= this.target_road.bottomY;
 
         if (is_prev_road || is_target_road) {
-          const rowCars = this.world!!.row_to_cars_dict[gy] || [];
+          const rowCars = this.world!.row_to_cars_dict[gy] || [];
           for (const car of rowCars) {
             let [car_left_x, car_right_x] = car.getCurXPos();
 
@@ -590,7 +590,7 @@ export class Environment {
   }
 
   private resetEpisodeMetadata() {
-    const agent = this.world!!.agent;
+    const agent = this.world!.agent;
     const visible_distances = this.game_screen_relative_positions()[0];
     const agent_y_range = [Agent.TARGET_LANE, Environment.MAP_GRID_HEIGHT - 1];
     const [grid_y_top_visible_distance, grid_y_bottom_visible_distance, grid_x_visible_distance] = visible_distances;
@@ -606,12 +606,12 @@ export class Environment {
     };
 
     const roads_metadata: { is_dangerous_row: boolean[], roads: object[] } = {
-      is_dangerous_row: this.world!!.danger_row,
+      is_dangerous_row: this.world!.danger_row,
       roads: [],
     };
 
-    for (let i = this.world!!.roads.elements.length - 1; i >= 0; i -= 1) {
-      const road = this.world!!.roads.elements[i];
+    for (let i = this.world!.roads.elements.length - 1; i >= 0; i -= 1) {
+      const road = this.world!.roads.elements[i];
       roads_metadata.roads.push({
         uid: road.uid,
         top_y: road.topY,
@@ -624,7 +624,7 @@ export class Environment {
     }
 
     const cars_metadata = [];
-    for (const car of this.world!!.cars.elements) {
+    for (const car of this.world!.cars.elements) {
       cars_metadata.push({
         uid: car.uid,
         road_uid: car.road.uid,
@@ -657,10 +657,9 @@ export class Environment {
   }
 
   private updateInfo() {
-    const agent = this.world!!.agent;
-    // eslint-disable-next-line 
+    const agent = this.world!.agent;
     const [agent_top_y, agent_bottom_y, agent_left_x, agent_right_x] = agent.getHitbox();
-    // eslint-disable-next-line 
+    // eslint-disable-next-line
     const [__, game_screen_grid_rect, game_screen_rect] = this.game_screen_relative_positions()
 
     const [agent_grid_x, agent_grid_y] = agent.getCurLocationGrid();
@@ -694,15 +693,17 @@ export class Environment {
       if (!is_prev_road && !is_target_road) continue;
 
       const cars = [];
-      const rowCars = this.world!!.row_to_cars_dict[grid_y] || [];
+      const rowCars = this.world!.row_to_cars_dict[grid_y] || [];
 
       for (const car of rowCars) {
-        let [
+        const [
           car_top_y,
           car_bottom_y,
-          car_left_x,
-          car_right_x,
+          _car_left_x,
+          _car_right_x,
         ] = car.getHitbox();
+        let car_left_x = _car_left_x;
+        let car_right_x = _car_right_x;
 
         // filter out of sight
         if (car_right_x < visible_x_left_end) continue;
@@ -730,7 +731,7 @@ export class Environment {
     this.state.playInfo = {
       game_info: {
         time_left: this.timeLeftMs,
-        game_end_extra_score: this.world!!.getEpisodeResultExtraScore(),
+        game_end_extra_score: this.world!.getEpisodeResultExtraScore(),
         cur_episode_score: this.cur_episode_rewards,
       },
       map: {
@@ -748,7 +749,7 @@ export class Environment {
 
         target_road_uid: this.target_road ? this.target_road.uid : null,
         target_road_crosswalk_visible: this.target_road_crosswalk_visible,
-        activated_crosswalk_uid: this.world!!.roads.activatedCrosswalkUid,
+        activated_crosswalk_uid: this.world!.roads.activatedCrosswalkUid,
       },
       agent: {
         grid_x: agent_grid_x,
@@ -770,7 +771,7 @@ export class Environment {
   }
 
   private game_screen_relative_positions() {
-    const [agent_grid_x, agent_grid_y] = this.world!!.agent.getCurLocationGrid();
+    const [agent_grid_x, agent_grid_y] = this.world!.agent.getCurLocationGrid();
     const grid_y_top_visible_distance = Math.floor(Environment.CAMERA_HEIGHT / 2) + 2;
     const grid_y_bottom_visible_distance = Math.floor(Environment.CAMERA_HEIGHT / 2) - 2;
     const grid_x_visible_distance = Math.floor(Environment.CAMERA_WIDTH / 2);

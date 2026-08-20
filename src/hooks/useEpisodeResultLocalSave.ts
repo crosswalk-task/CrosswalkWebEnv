@@ -118,7 +118,9 @@ export function useEpisodeResultLocalSave(
     if (!save) {
       collectedEpisodesRef.current = [];
       processedEpisodeRefs.current = new WeakSet<object>();
-      setPendingEpisodeCount(0);
+      queueMicrotask(() => {
+        setPendingEpisodeCount(0);
+      });
 
       removeEpisodeResult();
       return;
@@ -139,7 +141,10 @@ export function useEpisodeResultLocalSave(
     }
 
     collectedEpisodesRef.current.push(episodeResult);
-    setPendingEpisodeCount(collectedEpisodesRef.current.length);
+    const pendingCount = collectedEpisodesRef.current.length;
+    queueMicrotask(() => {
+      setPendingEpisodeCount(pendingCount);
+    });
 
     // NOTE: Remove from the queue first and then download. 
     // The data still remains in collectedEpisodesRef, so it can be downloaded by manually calling download();

@@ -10,7 +10,7 @@ type Key = string;
 
 interface iState {
   obs: number[];
-  playInfo: Object;
+  playInfo: object;
 }
 
 interface iEnvironment {
@@ -59,26 +59,9 @@ const keyboardInputToAction: Record<Key, Action> = {
 export const useGameLoop = (env: iEnvironment | null) => {
   const [timeLeftSecView, setTimeLeftSecView] = useState(EPISODE_DURATION_MS); // view-only
   const timeLeftSecViewRef = useRef(timeLeftSecView);
-  useEffect(() => {
-    timeLeftSecViewRef.current = timeLeftSecView;
-  }, [timeLeftSecView]);
 
   const [episodeOver, _setEpisodeOver] = useState(false);
   const episodeOverRef = useRef(episodeOver);
-  useEffect(() => {
-    episodeOverRef.current = episodeOver;
-  }, [episodeOver]);
-  const setEpisodeOver = (isOver: boolean) => {
-    env?.setEpisodeOver(isOver);
-    _setEpisodeOver(isOver);
-    episodeOverRef.current = isOver;
-    if (isOver) {
-      if (reqIdRef.current !== null) {
-        cancelAnimationFrame(reqIdRef.current);
-        reqIdRef.current = null;
-      }
-    }
-  };
   const episodeStartedRef = useRef(false);
   const episodeStatesRef = useRef<iEpisodeStates>({ obs_list: [], actions: [], rewards: [], cumReward: 0, playInfos: [], episodeMetadata: {} });
   const [episodeScore, setEpisodeScore] = useState(0);
@@ -99,6 +82,26 @@ export const useGameLoop = (env: iEnvironment | null) => {
   const startedRef = useRef(false);
   const runningRef = useRef(false);
   const [episodeResultQueue, _setEpisodeResultQueue] = useState<iEpisodeResult[]>([]);
+
+  useEffect(() => {
+    timeLeftSecViewRef.current = timeLeftSecView;
+  }, [timeLeftSecView]);
+
+  useEffect(() => {
+    episodeOverRef.current = episodeOver;
+  }, [episodeOver]);
+  const setEpisodeOver = (isOver: boolean) => {
+    env?.setEpisodeOver(isOver);
+    _setEpisodeOver(isOver);
+    episodeOverRef.current = isOver;
+    if (isOver) {
+      if (reqIdRef.current !== null) {
+        cancelAnimationFrame(reqIdRef.current);
+        reqIdRef.current = null;
+      }
+    }
+  };
+
   const enqueueEpisodeResult = (newResult: iEpisodeResult) => _setEpisodeResultQueue(prev => [...prev, newResult]);
   const removeEpisodeResult = () => {
     if (episodeResultQueue.length > 0) {
@@ -132,7 +135,7 @@ export const useGameLoop = (env: iEnvironment | null) => {
     };
   }, []);
 
-  const tick = useCallback((accTotalTimePassed: number) => {
+  const tick = useCallback(function tick(accTotalTimePassed: number) {
     if (!env || !startedRef.current) return;
 
     // reset and start new episode
@@ -283,8 +286,7 @@ export const useGameLoop = (env: iEnvironment | null) => {
     setBestScore(null);
     setTotalScore(0);
     setTotalTimePassedMs(0);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [env]);
+  }, [resetEpisodeRefs]);
 
   return {
     timeLeftSecView,

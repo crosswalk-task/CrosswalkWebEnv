@@ -1,6 +1,6 @@
 import { styled } from "styled-components";
 
-export const BlackScreenContainer = styled.div`
+const BlackScreenContainer = styled.div`
   position: fixed;
   top: 0;
   left: 0;
@@ -24,7 +24,7 @@ export const BlackScreenContainer = styled.div`
   }
 `;
 
-export const WarningText = styled.span`
+const WarningText = styled.span`
   font-weight: 800;
   font-size: 20px;
   color: white;

@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useEffect, useContext } from "react";
 import { styled } from "styled-components";
 
 import { Popup } from "./Popup";
@@ -64,13 +64,10 @@ const Task = ({ maxSeconds, setIsOngoingSession }: iTask) => {
     totalTimePassedMs,
   } = useContext(GameContext);
   const canvasRef = env.getCanvasRef();
-  const [isPopupMode, setIsPopupMode] = useState(false);
 
   useEffect(() => {
-    if (episodeOver && !isPopupMode) {
-      setIsPopupMode(true);
+    if (episodeOver) {
       const closePopUp = setTimeout(() => {
-        setIsPopupMode(false);
         setEpisodeOver(false);
         // NOTE: run forever if maxSeconds < 0
         if ((maxSeconds > 0) && (maxSeconds * 1000 <= totalTimePassedMs)) {
@@ -78,15 +75,15 @@ const Task = ({ maxSeconds, setIsOngoingSession }: iTask) => {
         }
       }, GAME_OVER_SCREEN_MS);
       return () => clearTimeout(closePopUp); // return a function in the useEffect callback and that function will run when the component unmounts
-    } // eslint-disable-next-line
-  }, [episodeOver, setIsPopupMode]); // NOTE: isPopupMode should not be added. Popup will open every time it closes.
+    }
+  }, [episodeOver]);
 
   return (
     <Wrapper>
         {!episodeOver && <TimeLeftHeader className="ingame_text" $isAlert={timeLeftSecView <= ALERT_TIME_LEFT_SEC}>Time Left: {timeLeftSecView} sec</TimeLeftHeader>}
         <CanvasWrapper>
         <canvas ref={canvasRef} />
-        {isPopupMode && <Popup />}
+        {episodeOver && <Popup />}
         </CanvasWrapper>
         {!episodeOver && (
         <ScoreTextBox className="ingame_text">

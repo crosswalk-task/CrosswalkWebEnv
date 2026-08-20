@@ -88,12 +88,7 @@ export class Car extends GameObject {
         const [otherLeft, otherRight] = otherCar.getCurXPos();
 
         // stop when another car is right in front
-        let frontDist = 0;
-        if (this.carDetails.goRight)
-          frontDist = otherLeft - myRight;
-        else
-          frontDist = myLeft - otherRight;
-
+        const frontDist = this.carDetails.goRight ? otherLeft - myRight : myLeft - otherRight;
         if (0 < frontDist && frontDist <= threshold) {
           this.stop();
           return;

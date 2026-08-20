@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2015",
     "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker"],
-    "baseUrl": "./src",
+    "paths": {
+      "*": ["./src/*"]
+    },    
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,

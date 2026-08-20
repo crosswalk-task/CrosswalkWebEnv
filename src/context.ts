@@ -32,6 +32,6 @@ export const GameContext = createContext<iGameContext>({
   totalTimePassedMs: 0,
   episodeResultQueue: [],
   removeEpisodeResult: () => {},
-  startGame: (initialSeed: number) => {},
+  startGame: () => {},
   endGame: () => {},
 });

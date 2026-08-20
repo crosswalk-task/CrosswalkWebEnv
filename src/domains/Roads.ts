@@ -229,7 +229,7 @@ export class Roads {
         if (cwGridRight + 2 <= cameraGridBox.left) continue;
         if (cameraGridBox.right <= cwGridLeft - 2) continue;
 
-        let start_x = (cwGridLeft - cameraGridBox.left) * pixSquareSize;
+        const start_x = (cwGridLeft - cameraGridBox.left) * pixSquareSize;
         const topY = (road.topY - cameraGridBox.top - adjustment) * pixSquareSize;
         const cw_width = (cwGridRight - cwGridLeft) * pixSquareSize;
         { // cover up background (-1 pixel at top and bottom, +pixSquareSize at left and right)

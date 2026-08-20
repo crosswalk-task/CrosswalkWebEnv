@@ -60,13 +60,11 @@ const ExperimentPage = ({
       setEnv(environment);
     })();
     return;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [viewportWidth, viewportHeight]);
 
   useEffect(() => {
     env?.updateBrowserResizing(viewportWidth, viewportHeight)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewportWidth, viewportHeight]);
+  }, [env, viewportWidth, viewportHeight]);
 
   const {
     timeLeftSecView,
