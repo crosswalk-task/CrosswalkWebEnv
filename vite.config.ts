@@ -29,10 +29,8 @@ export default defineConfig({
         "react-dom",
         "react-dom/client",
         "react/jsx-runtime",
-        "react-router-dom",
         "styled-components",
         "jszip",
-        "web-vitals",
       ],
 
       output: {

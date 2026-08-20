@@ -26,31 +26,18 @@ const validateArguments = (subjectId: number | string, sessionId: number, maxEpi
   if ((typeof subjectId !== "string" && typeof subjectId !== "number") || subjectId === null) {
     throw new TypeError(`subjectId must be a string or number, but received: ${String(subjectId)}`);
   }
-  if (!Number.isInteger(sessionId) || sessionId < 1) {
-    throw new Error(`sessionId must be a positive integer (1, 2, 3, ...), but received: ${String(sessionId)}`);
+  if (!Number.isInteger(sessionId) || sessionId < 0) {
+    throw new Error(`sessionId should be a non-negative integer, but received: ${String(sessionId)}`);
   }
-  if (
-    typeof maxEpisodes !== "number" ||
-    !Number.isFinite(maxEpisodes) ||
-    !Number.isInteger(maxEpisodes) ||
-    (maxEpisodes < 1 && maxEpisodes !== -1)
-  ) {
-    throw new TypeError(`maxEpisodes must be -1 or a positive integer, but received: ${String(maxEpisodes)}`);
+  if (typeof maxEpisodes !== "number" || !Number.isFinite(maxEpisodes) || !Number.isInteger(maxEpisodes)) {
+    throw new TypeError(`maxEpisodes must an integer, but received: ${String(maxEpisodes)}`);
   }
-  if (
-    typeof maxSeconds !== "number" ||
-    !Number.isFinite(maxSeconds) ||
-    !Number.isInteger(maxSeconds) ||
-    (maxSeconds < 1 && maxSeconds !== -1)
-  ) {
-    throw new TypeError(`maxSeconds must be -1 or a positive integer, but received: ${String(maxSeconds)}`);
+  if (typeof maxSeconds !== "number" || !Number.isFinite(maxSeconds) || !Number.isInteger(maxSeconds)) {
+    throw new TypeError(`maxSeconds must be an integer, but received: ${String(maxSeconds)}`);
   }
   if (maxEpisodes > 0 && maxSeconds > 0) {
-    throw new TypeError(
-      "At most one of maxEpisodes or maxSeconds can be a positive integer."
-    );
+    throw new TypeError("At most one of maxEpisodes or maxSeconds can have positive value.");
   }
-
   if (typeof localSave !== "boolean") {
     throw new TypeError(`localSave must be a boolean, but received: ${String(localSave)}`);
   }
