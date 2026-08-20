@@ -69,6 +69,7 @@ export const useGameLoop = (env: iEnvironment | null) => {
   const [bestScore, setBestScore] = useState<number | null>(null);
   const [isNewBestScore, setIsNewBestScore] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
+  const [totalFinishedEpisodeCnt, setTotalFinishedEpisodeCnt] = useState(0);
   const [totalTimePassedMs, setTotalTimePassedMs] = useState(0);
 
   const accDtRef = useRef(0);
@@ -90,7 +91,8 @@ export const useGameLoop = (env: iEnvironment | null) => {
   useEffect(() => {
     episodeOverRef.current = episodeOver;
   }, [episodeOver]);
-  const setEpisodeOver = (isOver: boolean) => {
+
+  const setEpisodeOver = useCallback((isOver: boolean) => {
     env?.setEpisodeOver(isOver);
     _setEpisodeOver(isOver);
     episodeOverRef.current = isOver;
@@ -100,7 +102,7 @@ export const useGameLoop = (env: iEnvironment | null) => {
         reqIdRef.current = null;
       }
     }
-  };
+  }, [env]);
 
   const enqueueEpisodeResult = (newResult: iEpisodeResult) => _setEpisodeResultQueue(prev => [...prev, newResult]);
   const removeEpisodeResult = () => {
@@ -133,6 +135,19 @@ export const useGameLoop = (env: iEnvironment | null) => {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
     };
+  }, []);
+
+  const resetEpisodeRefs = useCallback(() => {
+    accDtRef.current = 0;
+    stepAccMsRef.current = 0;
+    miniStepAccMsRef.current = 0;
+    updatePosAccDtRef.current = 0;
+
+    lastAccTotalTimePassedRef.current = 0;
+    lastActionRef.current = Action.NOTHING;
+    episodeStartedRef.current = false;
+    episodeStartTsRef.current = 0;
+    episodeOverRef.current = false;
   }, []);
 
   const tick = useCallback(function tick(accTotalTimePassed: number) {
@@ -207,6 +222,7 @@ export const useGameLoop = (env: iEnvironment | null) => {
       const { cumRewards, episodeResult, timeLeftSec } = env.getPrevActionResult();
       if (timeLeftSec === 0 || episodeResult !== 0) {
         setEpisodeOver(true);
+        setTotalFinishedEpisodeCnt(prev => prev + 1);
         setEpisodeResultExtraScore(episodeResult);
         episodeStartedRef.current = false;
 
@@ -243,21 +259,7 @@ export const useGameLoop = (env: iEnvironment | null) => {
     } else {
       reqIdRef.current = null;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [env]);
-
-  const resetEpisodeRefs = useCallback(() => {
-    accDtRef.current = 0;
-    stepAccMsRef.current = 0;
-    miniStepAccMsRef.current = 0;
-    updatePosAccDtRef.current = 0;
-
-    lastAccTotalTimePassedRef.current = 0;
-    lastActionRef.current = Action.NOTHING;
-    episodeStartedRef.current = false;
-    episodeStartTsRef.current = 0;
-    episodeOverRef.current = false;
-  }, []);
+  }, [env, resetEpisodeRefs, setEpisodeOver]);
 
   const startGame = useCallback((initialSeed: number) => {
     if (!env || startedRef.current) return;
@@ -285,6 +287,7 @@ export const useGameLoop = (env: iEnvironment | null) => {
 
     setBestScore(null);
     setTotalScore(0);
+    setTotalFinishedEpisodeCnt(0);
     setTotalTimePassedMs(0);
   }, [resetEpisodeRefs]);
 
@@ -297,6 +300,7 @@ export const useGameLoop = (env: iEnvironment | null) => {
     bestScore,
     isNewBestScore,
     totalScore,
+    totalFinishedEpisodeCnt,
     totalTimePassedMs,
     episodeResultQueue,
     removeEpisodeResult,

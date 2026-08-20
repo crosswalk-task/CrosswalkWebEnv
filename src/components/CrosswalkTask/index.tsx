@@ -55,6 +55,7 @@ interface iCrosswalkTask {
   subjectId: number | string;
   sessionId: number | string;
   initialSeed?: number;
+  maxEpisodes: number;
   maxSeconds: number;
   localSave: boolean;
   openTaskExplanation?: () => void;
@@ -65,6 +66,7 @@ const CrosswalkTask = ({
   subjectId, 
   sessionId,
   initialSeed,
+  maxEpisodes,
   maxSeconds,
   localSave,
   openTaskExplanation,
@@ -85,7 +87,7 @@ const CrosswalkTask = ({
   };
 
   useEffect(() => {
-    // NOTE: isOngoingSession is automatically set to false after playing over maxSeconds
+    // NOTE: isOngoingSession is automatically set to false after playing over maxEpisodes or maxSeconds
     return () => {
       if (isOngoingSession) {
         endGame();
@@ -100,6 +102,7 @@ const CrosswalkTask = ({
         <BlackPageWrapper>
           <Header>Crosswalk Task</Header>
           <br />
+          {(maxEpisodes > 0) && <Text>You will now play the task for {maxEpisodes} rounds.</Text>}
           {(maxSeconds > 0) && <Text>You will now play the task for {maxSeconds / 60} minutes.</Text>}
           <br />
           <Text>(1) Once the task starts, you cannot pause it. Please go to the bathroom beforehand and make sure you are comfortable.</Text>
@@ -115,7 +118,7 @@ const CrosswalkTask = ({
           </ButtonWrapper>
         </BlackPageWrapper>
       )}
-      {isOngoingSession && <Task maxSeconds={maxSeconds} setIsOngoingSession={setIsOngoingSession} />}
+      {isOngoingSession && <Task maxEpisodes={maxEpisodes} maxSeconds={maxSeconds} setIsOngoingSession={setIsOngoingSession} />}
     </>
   );
 };

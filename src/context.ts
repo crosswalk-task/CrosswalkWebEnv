@@ -12,6 +12,7 @@ export interface iGameContext {
   bestScore: number | null;
   isNewBestScore: boolean;
   totalScore: number;
+  totalFinishedEpisodeCnt: number;
   totalTimePassedMs: number;
   episodeResultQueue: iEpisodeResult[];
   removeEpisodeResult: () => void;  
@@ -29,6 +30,7 @@ export const GameContext = createContext<iGameContext>({
   bestScore: 0,
   isNewBestScore: false,
   totalScore: 0,
+  totalFinishedEpisodeCnt: 0,
   totalTimePassedMs: 0,
   episodeResultQueue: [],
   removeEpisodeResult: () => {},

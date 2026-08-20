@@ -48,11 +48,12 @@ const ScoreTextBox = styled.div`
 `;
 
 interface iTask {
+  maxEpisodes: number;
   maxSeconds: number;
   setIsOngoingSession: (isRunning: boolean) => void;
 }
 
-const Task = ({ maxSeconds, setIsOngoingSession }: iTask) => {
+const Task = ({ maxEpisodes, maxSeconds, setIsOngoingSession }: iTask) => {
   const { 
     env,
     timeLeftSecView,
@@ -61,6 +62,7 @@ const Task = ({ maxSeconds, setIsOngoingSession }: iTask) => {
     episodeScore,
     bestScore,
     totalScore,
+    totalFinishedEpisodeCnt,
     totalTimePassedMs,
   } = useContext(GameContext);
   const canvasRef = env.getCanvasRef();
@@ -69,14 +71,17 @@ const Task = ({ maxSeconds, setIsOngoingSession }: iTask) => {
     if (episodeOver) {
       const closePopUp = setTimeout(() => {
         setEpisodeOver(false);
-        // NOTE: run forever if maxSeconds < 0
+        // NOTE: run forever if maxEpisodes < 0 and maxSeconds < 0
+        if ((maxEpisodes > 0) && (maxEpisodes <= totalFinishedEpisodeCnt)) {
+          setIsOngoingSession(false);
+        }
         if ((maxSeconds > 0) && (maxSeconds * 1000 <= totalTimePassedMs)) {
           setIsOngoingSession(false);
         }
       }, GAME_OVER_SCREEN_MS);
       return () => clearTimeout(closePopUp); // return a function in the useEffect callback and that function will run when the component unmounts
     }
-  }, [episodeOver]);
+  }, [maxEpisodes, maxSeconds, setEpisodeOver, setIsOngoingSession, totalFinishedEpisodeCnt, totalTimePassedMs, episodeOver]);
 
   return (
     <Wrapper>
