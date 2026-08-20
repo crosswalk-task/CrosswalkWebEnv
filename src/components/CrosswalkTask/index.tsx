@@ -96,14 +96,27 @@ const CrosswalkTask = ({
     };
   }, [isOngoingSession, endGame, handleSessionEnd]);
 
+  const minutes = Math.floor(maxSeconds / 60);
+  const seconds = maxSeconds % 60;
   return (
     <>
       {!isOngoingSession && (
         <BlackPageWrapper>
           <Header>Crosswalk Task</Header>
           <br />
-          {(maxEpisodes > 0) && <Text>You will now play the task for {maxEpisodes} rounds.</Text>}
-          {(maxSeconds > 0) && <Text>You will now play the task for {maxSeconds / 60} minutes.</Text>}
+          {maxEpisodes > 0 && (
+            <Text>
+              You will now play the task for {maxEpisodes} rounds.
+            </Text>
+          )}
+          {maxSeconds > 0 && (
+            <Text>
+              You will now play the task for{" "}
+              {minutes > 0 && `${minutes} minute${minutes > 1 ? "s" : ""}`}
+              {minutes > 0 && seconds > 0 && " and "}
+              {seconds > 0 && `${seconds} second${seconds > 1 ? "s" : ""}`}.
+            </Text>
+          )}
           <br />
           <Text>(1) Once the task starts, you cannot pause it. Please go to the bathroom beforehand and make sure you are comfortable.</Text>
           <Text>(2) You must use a desktop or laptop computer.</Text>

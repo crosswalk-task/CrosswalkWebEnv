@@ -1,4 +1,4 @@
-import { useEffect, useContext } from "react";
+import { useEffect, useContext, useRef } from "react";
 import { styled } from "styled-components";
 
 import { Popup } from "./Popup";
@@ -65,23 +65,30 @@ const Task = ({ maxEpisodes, maxSeconds, setIsOngoingSession }: iTask) => {
     totalFinishedEpisodeCnt,
     totalTimePassedMs,
   } = useContext(GameContext);
+
   const canvasRef = env.getCanvasRef();
 
+  const sessionStateRef = useRef({ maxEpisodes, maxSeconds, totalFinishedEpisodeCnt, totalTimePassedMs });
+  // update ref with updated values
   useEffect(() => {
-    if (episodeOver) {
-      const closePopUp = setTimeout(() => {
-        setEpisodeOver(false);
-        // NOTE: run forever if maxEpisodes < 0 and maxSeconds < 0
-        if ((maxEpisodes > 0) && (maxEpisodes <= totalFinishedEpisodeCnt)) {
-          setIsOngoingSession(false);
-        }
-        if ((maxSeconds > 0) && (maxSeconds * 1000 <= totalTimePassedMs)) {
-          setIsOngoingSession(false);
-        }
-      }, GAME_OVER_SCREEN_MS);
-      return () => clearTimeout(closePopUp); // return a function in the useEffect callback and that function will run when the component unmounts
-    }
-  }, [maxEpisodes, maxSeconds, setEpisodeOver, setIsOngoingSession, totalFinishedEpisodeCnt, totalTimePassedMs, episodeOver]);
+    sessionStateRef.current = { maxEpisodes, maxSeconds, totalFinishedEpisodeCnt, totalTimePassedMs };
+  }, [maxEpisodes, maxSeconds, totalFinishedEpisodeCnt, totalTimePassedMs]);
+
+  useEffect(() => {
+    if (!episodeOver) return;
+
+    const closePopUp = setTimeout(() => {
+      setEpisodeOver(false);
+
+      const { maxEpisodes, maxSeconds, totalFinishedEpisodeCnt, totalTimePassedMs } = sessionStateRef.current;
+      if (((maxEpisodes > 0) && (maxEpisodes <= totalFinishedEpisodeCnt)) ||
+        ((maxSeconds > 0) && (maxSeconds * 1000 <= totalTimePassedMs))) {
+        setIsOngoingSession(false);
+      }
+    }, GAME_OVER_SCREEN_MS);
+
+    return () => clearTimeout(closePopUp);
+  }, [episodeOver, setEpisodeOver, setIsOngoingSession]);
 
   return (
     <Wrapper>
