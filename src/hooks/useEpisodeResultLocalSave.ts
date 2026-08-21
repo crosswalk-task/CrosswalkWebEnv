@@ -15,15 +15,6 @@ function addEpisodeToZip(zip: JSZip, episodeResult: iEpisodeResult): void {
   zip.file("rewards.json", JSON.stringify(episodeResult.rewards, null, 2));
   zip.file("playInfos.json", JSON.stringify(episodeResult.playInfos, null, 2));
   zip.file("episodeMetadata.json", JSON.stringify(episodeResult.episodeMetadata, null, 2));
-  const episodeData = {
-    episodeSeed: episodeResult.episodeSeed,
-    obsList: episodeResult.obsList,
-    actions: episodeResult.actions,
-    rewards: episodeResult.rewards,
-    playInfos: episodeResult.playInfos,
-    episodeMetadata: episodeResult.episodeMetadata,
-  };
-  zip.file("episode.json", JSON.stringify(episodeData, null, 2));
 }
 
 function triggerBrowserDownload(blob: Blob, fileName: string): void {
@@ -71,9 +62,16 @@ export function useEpisodeResultLocalSave(
         const manifestData = {
           subjectId: subjectIdStr,
           sessionId: sessionIdStr,
-          episodeCount: episodes.length,
+          episodeSeed: episodeResult.episodeSeed,
           createdAt: new Date().toISOString(),
           formatVersion: 1,
+          files: [
+            "actions.json",
+            "obsList.json",
+            "rewards.json",
+            "playInfos.json",
+            "episodeMetadata.json",
+          ],
         };
         zip.file("manifest.json", JSON.stringify(manifestData, null, 2));
 
