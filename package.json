@@ -1,6 +1,6 @@
 {
   "name": "crosswalk-web-env",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "description": "npm package for web version of CrosswalkEnv",
   "homepage": "https://crosswalk-task.github.io",
   "type": "module",
